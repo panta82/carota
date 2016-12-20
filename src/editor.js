@@ -3,21 +3,22 @@ var carotaDoc = require('./doc');
 var dom = require('./dom');
 var rect = require('./rect');
 
-setInterval(function() {
-    var editors = document.querySelectorAll('.carotaEditorCanvas');
-
-    var ev = document.createEvent('Event');
-    ev.initEvent('carotaEditorSharedTimer', true, true);
-
-    // not in IE, apparently:
-    // var ev = new CustomEvent('carotaEditorSharedTimer');
-
-    for (var n = 0; n < editors.length; n++) {
-        editors[n].dispatchEvent(ev);
-    }
-}, 200);
-
 exports.create = function(element) {
+	if (document && !document._carotaInterval) {
+		document._carotaInterval = setInterval(function() {
+			var editors = document.querySelectorAll('.carotaEditorCanvas');
+			
+			var ev = document.createEvent('Event');
+			ev.initEvent('carotaEditorSharedTimer', true, true);
+			
+			// not in IE, apparently:
+			// var ev = new CustomEvent('carotaEditorSharedTimer');
+			
+			for (var n = 0; n < editors.length; n++) {
+				editors[n].dispatchEvent(ev);
+			}
+		}, 200);
+	}
 
     // We need the host element to be a container:
     if (dom.effectiveStyle(element, 'position') !== 'absolute') {
