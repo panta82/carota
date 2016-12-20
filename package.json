@@ -16,7 +16,6 @@
   },
   "devDependencies": {
     "webmake": ">=0.3.19",
-    "node-minify": ">=0.8.1",
     "express": "3.3.4",
     "uglifyjs": "^2.4.10"
   },
