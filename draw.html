@@ -343,6 +343,7 @@
 			const ctx = canvas.getContext('2d');
 			const doc = carota.document();
 			doc.load(exampleEditor.save());
+			doc.width(canvas.width);
 			doc.draw(ctx, carota.rect(0, 0, canvas.width, canvas.height));
 		});
 
