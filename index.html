@@ -376,7 +376,7 @@
             });
         });
 
-        var valign = document.querySelector('#valign')
+        var valign = document.querySelector('#valign');
         carota.dom.handleEvent(valign, 'change', function() {
             exampleEditor.setVerticalAlignment(valign.value);
         });
@@ -391,7 +391,11 @@
             }
             updateTimer = setTimeout(function() {
                 updateTimer = null;
-                persistenceTextArea.value = JSON.stringify(exampleEditor.save(), null, 4);
+				var persistenceData = {
+					doc: exampleEditor.save(),
+					measureCache: carota.text.measureCache.get()
+				};
+                persistenceTextArea.value = JSON.stringify(persistenceData, null, 4);
             }, 500);
         };
 

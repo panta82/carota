@@ -66,6 +66,15 @@ var enter = exports.enter = nbsp; // String.fromCharCode(9166);
  */
 var measureText = exports.measureText = function(text, style) {
     var span, block, div;
+	
+	if (typeof document === 'undefined') {
+		return {
+			width: 0,
+			height: 0,
+			ascent: 0,
+			descent: 0
+		};
+	}
 
     span = document.createElement('span');
     block = document.createElement('div');
@@ -122,22 +131,37 @@ var measureText = exports.measureText = function(text, style) {
     can be occasionally discarded, although of course this will cause a slow down as the cache
     has to build up again (text measuring is by far the most costly operation we have to do).
 */
-var createCachedMeasureText = exports.createCachedMeasureText = function() {
+var createMeasureTextCache = function() {
     var cache = {};
-    return function(text, style) {
-        var key = style + '<>!&%' + text;
-        var result = cache[key];
-        if (!result) {
-            cache[key] = result = measureText(text, style);
-        }
-        return result;
-    };
+	
+	return {
+    	measure: memoizedMeasure,
+		get: getCache,
+		set: setCache
+	};
+	
+	function memoizedMeasure(text, style) {
+		var key = style + '<>!&%' + text;
+		var result = cache[key];
+		if (!result) {
+			cache[key] = result = measureText(text, style);
+		}
+		return result;
+	}
+	
+	function getCache() {
+		return cache;
+	}
+	
+	function setCache(newCache) {
+		cache = newCache;
+	}
 };
 
-exports.cachedMeasureText = createCachedMeasureText();
+exports.measureCache = createMeasureTextCache();
 
 exports.measure = function(str, formatting) {
-    return exports.cachedMeasureText(str, exports.getRunStyle(formatting));
+    return exports.measureCache.measure(str, exports.getRunStyle(formatting));
 };
 
 exports.draw = function(ctx, str, formatting, left, baseline, width, ascent, descent) {
