@@ -68,12 +68,7 @@ var measureText = exports.measureText = function(text, style) {
     var span, block, div;
 	
 	if (typeof document === 'undefined') {
-		return {
-			width: 0,
-			height: 0,
-			ascent: 0,
-			descent: 0
-		};
+		throw new Error("DOM is not available to be used for text measurements");
 	}
 
     span = document.createElement('span');
