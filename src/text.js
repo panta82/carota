@@ -133,11 +133,14 @@ var measureText = exports.measureText = function(text, style) {
 */
 var createMeasureTextCache = function() {
     var cache = {};
+    var activeKeys = null;
 	
-	return {
+    return {
     	measure: memoizedMeasure,
 		get: getCache,
-		set: setCache
+		set: setCache,
+		shakeStart: shakeStart,
+		shakeEnd: shakeEnd
 	};
 	
 	function memoizedMeasure(text, style) {
@@ -145,6 +148,9 @@ var createMeasureTextCache = function() {
 		var result = cache[key];
 		if (!result) {
 			cache[key] = result = measureText(text, style);
+		}
+		if (activeKeys) {
+			activeKeys[key] = true;
 		}
 		return result;
 	}
@@ -155,6 +161,23 @@ var createMeasureTextCache = function() {
 	
 	function setCache(newCache) {
 		cache = newCache;
+	}
+	
+	function shakeStart() {
+		activeKeys = {};
+	}
+	
+	function shakeEnd() {
+		if (!activeKeys) {
+			return;
+		}
+		
+		for (var key in cache) {
+			if (!activeKeys[key]) {
+				delete cache[key];
+			}
+		}
+		activeKeys = null;
 	}
 };
 

@@ -9,6 +9,7 @@ var util = require('./util');
 var frame = require('./frame');
 var codes = require('./codes');
 var rect = require('./rect');
+var text = require('./text');
 
 var makeEditCommand = function(doc, start, count, words) {
     var selStart = doc.selection.start, selEnd = doc.selection.end;
@@ -46,8 +47,11 @@ var isBreaker = function(word) {
 };
 
 var prototype = node.derive({
-    load: function(runs, takeFocus) {
-        var self = this;
+    load: function(runs, takeFocus, resetCache) {
+    	var self = this;
+		if (resetCache !== false) {
+			text.measureCache.shakeStart();
+		}
         this.undo = [];
         this.redo = [];
         this._wordOrdinals = [];
@@ -57,6 +61,9 @@ var prototype = node.derive({
         this.layout();
         this.contentChanged.fire();
         this.select(0, 0, takeFocus);
+		if (resetCache !== false) {
+			text.measureCache.shakeEnd();
+		}
     },
     layout: function() {
         this.frame = null;

@@ -126,6 +126,7 @@
             <option value="middle">Middle</option>
             <option value="bottom">Bottom</option>
         </select>
+		<button id="measure">Measure</button>
     </div>
 
     <div id="exampleEditor"></div>
@@ -141,7 +142,9 @@
         <a href="#why">Why?</a> |
         <a href="#how">How does it work?</a> |
         <a href="#usage">Usage</a> |
-        <a href="http://github.com/danielearwicker/carota">Source on Github</a>
+        <a href="http://github.com/danielearwicker/carota">Source on Github</a> |
+		<a href="#example1">Example 1</a> |
+		<a href="#example2">Example 2</a>
     </div>
 
     <div class="editablePage" id="welcome">
@@ -297,6 +300,20 @@
 
     </div>
 
+	<div class="editablePage" id="example1">
+		<h1>Heading text</h1>
+		<br>
+		<p>Line 1</p>
+		<p>Line 2</p>
+		<p>Line 3</p>
+	</div>
+
+	<div class="editablePage" id="example2">
+		<h2>Smaller heading</h2>
+		<h3>Subtitle</h3>
+		<p>Paragraph</p>
+	</div>
+
     <script>
     window.onload = function() {
         var elem = document.querySelector('#exampleEditor');
@@ -444,6 +461,10 @@
                 }
             })();
         }
+
+		carota.dom.handleEvent(document.querySelector('#measure'), 'click', function() {
+			exampleEditor.load(exampleEditor.save());
+		});
 
         load('#welcome');
         /*exampleEditor.load([

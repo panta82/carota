@@ -2,6 +2,7 @@ var per = require('per');
 var carotaDoc = require('./doc');
 var dom = require('./dom');
 var rect = require('./rect');
+var text = require('./text');
 
 exports.create = function(element) {
 	if (document && !document._carotaInterval) {
@@ -307,7 +308,6 @@ exports.create = function(element) {
     }
 
     var paint = function() {
-
         var availableWidth = element.clientWidth * 1; // adjust to 0.5 to see if we draw in the wrong places!
         if (doc.width() !== availableWidth) {
             doc.width(availableWidth);
