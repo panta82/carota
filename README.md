@@ -1,6 +1,14 @@
 carota
 ======
 
+## Fork notes
+
+- Removed minification in build system (outdated)
+- Removed express server (not needed)
+- Removed hard dependency on `window.document` (so we can render from node) 
+
+----
+
 Simple, flexible rich text rendering/editing on HTML Canvas
 
 Live demo (very self-explanatory!): http://earwicker.com/carota/
