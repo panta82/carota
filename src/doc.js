@@ -49,7 +49,7 @@ var isBreaker = function(word) {
 var prototype = node.derive({
     load: function(runs, takeFocus, resetCache) {
     	var self = this;
-		if (resetCache !== false) {
+		if (resetCache === true) {
 			text.measureCache.shakeStart();
 		}
         this.undo = [];
@@ -61,7 +61,7 @@ var prototype = node.derive({
         this.layout();
         this.contentChanged.fire();
         this.select(0, 0, takeFocus);
-		if (resetCache !== false) {
+		if (resetCache === true) {
 			text.measureCache.shakeEnd();
 		}
     },
