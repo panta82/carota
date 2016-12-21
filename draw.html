@@ -345,6 +345,7 @@
 			const doc = carota.document();
 			doc.load(exampleEditor.save());
 			doc.width(canvas.width);
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			doc.draw(ctx, carota.rect(0, 0, canvas.width, canvas.height));
 
 			canvasToBlob(canvas, function (blob) {
