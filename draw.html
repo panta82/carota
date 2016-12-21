@@ -2,6 +2,7 @@
 <html>
 <head>
     <title></title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.15.3/axios.js"></script>
     <script src="carota-debug.js"></script>
     <style>
         #exampleToolbar {
@@ -345,6 +346,23 @@
 			doc.load(exampleEditor.save());
 			doc.width(canvas.width);
 			doc.draw(ctx, carota.rect(0, 0, canvas.width, canvas.height));
+
+			canvasToBlob(canvas, function (blob) {
+				const fd = new FormData();
+				fd.append('data', blob);
+				return axios({
+					url: '/images',
+					baseURL: 'http://api.spinview.vm.panta.office.c-code.com/api/v1',
+					method: 'post',
+					data: fd
+				})
+				.then(function(res) {
+					console.log('UPLOAD OK', res);
+				})
+				.catch(function (err) {
+					console.log('UPLOAD ERROR', err);
+				});
+			});
 		});
 
 		setInterval(function () {
@@ -360,6 +378,24 @@
 
         load('#example1');
     };
+
+    function canvasToBlob(canvas, callback) {
+		if (canvas.toBlob) {
+			return canvas.toBlob(callback);
+		}
+
+		// Safari, Opera
+
+		const binStr = atob(canvas.toDataURL('image/png').split(',')[1]);
+		const len = binStr.length;
+		const arr = new Uint8Array(len);
+
+		for (var i = 0; i < len; i++) {
+			arr[i] = binStr.charCodeAt(i);
+		}
+
+		return callback(new Blob([arr], {type: 'image/png'}));
+	}
     </script>
 </body>
 </html>
