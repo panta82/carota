@@ -368,7 +368,11 @@ exports.create = function(element) {
             var bounds = endChar.bounds();
             textAreaDiv.style.left = bounds.l + 'px';
             textAreaDiv.style.top = bounds.t + 'px';
-            textArea.focus();
+			
+            // PANTA: Disabled focus()
+            //console.log('focus inside updateTextArea()');
+            //textArea.focus();
+			
             var scrollDownBy = Math.max(0, bounds.t + bounds.h -
                     (element.scrollTop + element.clientHeight));
             if (scrollDownBy) {
@@ -393,7 +397,9 @@ exports.create = function(element) {
         textArea.select();
 
         setTimeout(function() {
-            textArea.focus();
+			// PANTA: Disabled focus()
+        	//console.log('focus after timeout');
+            //textArea.focus();
         }, 10);
     };
 
@@ -443,7 +449,10 @@ exports.create = function(element) {
         selectDragStart = null;
         keyboardX = null;
         updateTextArea();
-        textArea.focus();
+		
+        // PANTA: Disabled focus()
+        //console.log('focus on mouseup');
+        //textArea.focus();
     });
 
     var nextCaretToggle = new Date().getTime(),
