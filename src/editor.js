@@ -284,7 +284,7 @@ exports.create = function(element) {
         if (handleKey(ev.keyCode, ev.shiftKey, ev.ctrlKey)) {
             return false;
         }
-        console.log(ev.which);
+        //console.log(ev.which);
     });
 
     var verticalAlignment = 'top';
