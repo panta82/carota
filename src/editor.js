@@ -8,13 +8,13 @@ exports.create = function(element) {
 	if (document && !document._carotaInterval) {
 		document._carotaInterval = setInterval(function() {
 			var editors = document.querySelectorAll('.carotaEditorCanvas');
-			
+
 			var ev = document.createEvent('Event');
 			ev.initEvent('carotaEditorSharedTimer', true, true);
-			
+
 			// not in IE, apparently:
 			// var ev = new CustomEvent('carotaEditorSharedTimer');
-			
+
 			for (var n = 0; n < editors.length; n++) {
 				editors[n].dispatchEvent(ev);
 			}
@@ -44,11 +44,12 @@ exports.create = function(element) {
         keyboardSelect = 0,
         keyboardX = null, nextKeyboardX = null,
         selectDragStart = null,
+        selectDragEnd = null,
         focusChar = null,
         textAreaContent = '',
         richClipboard = null,
         plainClipboard = null;
-    
+
     var toggles = {
         66: 'bold',
         73: 'italic',
@@ -288,7 +289,7 @@ exports.create = function(element) {
     });
 
     var verticalAlignment = 'top';
-    
+
     doc.setVerticalAlignment = function(va) {
         verticalAlignment = va;
         paint();
@@ -296,7 +297,7 @@ exports.create = function(element) {
 
     function getVerticalOffset() {
         var docHeight = doc.frame.bounds().h;
-        if (docHeight < element.clientHeight) { 
+        if (docHeight < element.clientHeight) {
             switch (verticalAlignment) {
                 case 'middle':
                     return (element.clientHeight - docHeight) / 2;
@@ -316,15 +317,15 @@ exports.create = function(element) {
         var docHeight = doc.frame.bounds().h;
 
         var dpr = Math.max(1, window.devicePixelRatio || 1);
-        
+
         var logicalWidth = Math.max(doc.frame.actualWidth(), element.clientWidth),
             logicalHeight = element.clientHeight;
-        
+
         canvas.width = dpr * logicalWidth;
         canvas.height = dpr * logicalHeight;
         canvas.style.width = logicalWidth + 'px';
         canvas.style.height = logicalHeight + 'px';
-        
+
         canvas.style.top = element.scrollTop + 'px';
         spacer.style.width = logicalWidth + 'px';
         spacer.style.height = Math.max(docHeight, element.clientHeight) + 'px';
@@ -341,7 +342,7 @@ exports.create = function(element) {
 
         ctx.clearRect(0, 0, logicalWidth, logicalHeight);
         ctx.translate(0, getVerticalOffset() - element.scrollTop);
-        
+
         doc.draw(ctx, rect(0, element.scrollTop, logicalWidth, logicalHeight));
         doc.drawSelection(ctx, selectDragStart || (document.activeElement === textArea));
     };
@@ -377,11 +378,11 @@ exports.create = function(element) {
             var bounds = endChar.bounds();
             textAreaDiv.style.left = bounds.l + 'px';
             textAreaDiv.style.top = bounds.t + 'px';
-			
+
             // PANTA: Disabled focus()
             //console.log('focus inside updateTextArea()');
             //textArea.focus();
-			
+
             var scrollDownBy = Math.max(0, bounds.t + bounds.h -
                     (element.scrollTop + element.clientHeight));
             if (scrollDownBy) {
@@ -423,7 +424,7 @@ exports.create = function(element) {
 
     function registerMouseEvent(name, handler) {
         // VEDRANA introduced eventElm instead of binding events to spacer only
-        var eventElm = name === "mouseup" ? element.parentElement : spacer;
+        var eventElm = name === "mouseup" || name === "mouseenter" ? document.body : spacer;
         dom.handleMouseEvent(eventElm, name, function (ev, x, y) {
             handler(doc.byCoordinate(x, y - getVerticalOffset()));
         });
@@ -431,6 +432,7 @@ exports.create = function(element) {
 
     registerMouseEvent('mousedown', function(node) {
         selectDragStart = node.ordinal;
+        selectDragEnd = null;
         doc.select(node.ordinal, node.ordinal);
         keyboardX = null;
     });
@@ -470,11 +472,24 @@ exports.create = function(element) {
         }
     });
 
-    registerMouseEvent('mouseup', function(node) {
+    // VEDRANA added mouse enter event listener
+    registerMouseEvent('mouseenter', function (node) {
+        if (selectDragStart !== null) {
+            if (selectDragEnd === null) {
+                selectDragStart = null;
+                selectDragEnd = true;
+                keyboardX = null;
+                updateTextArea();
+            }
+        }
+    });
+
+    registerMouseEvent('mouseup', function (node) {
         selectDragStart = null;
+        selectDragEnd = true;
         keyboardX = null;
         updateTextArea();
-		
+
         // PANTA: Disabled focus()
         //console.log('focus on mouseup');
         //textArea.focus();
