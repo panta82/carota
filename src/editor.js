@@ -365,6 +365,15 @@ exports.create = function(element) {
         var endChar = doc.byOrdinal(focusChar);
         focusChar = null;
         if (endChar) {
+
+            // VEDRANA START TEXT WRAPPING
+            if(endChar.word && endChar.word && endChar.word.word.text) {
+                if(element.clientWidth<endChar.word.word.text.width) {
+                    doc.insert("\n");
+                }
+            }
+            // VEDRANA END TEXT WRAPPING
+
             var bounds = endChar.bounds();
             textAreaDiv.style.left = bounds.l + 'px';
             textAreaDiv.style.top = bounds.t + 'px';
@@ -413,7 +422,9 @@ exports.create = function(element) {
     });
 
     function registerMouseEvent(name, handler) {
-        dom.handleMouseEvent(spacer, name, function(ev, x, y) {
+        // VEDRANA introduced eventElm instead of binding events to spacer only
+        var eventElm = name === "mouseup" ? element.parentElement : spacer;
+        dom.handleMouseEvent(eventElm, name, function (ev, x, y) {
             handler(doc.byCoordinate(x, y - getVerticalOffset()));
         });
     }
@@ -440,6 +451,20 @@ exports.create = function(element) {
                     doc.select(node.ordinal, selectDragStart);
                 } else {
                     doc.select(selectDragStart, node.ordinal);
+                }
+            }
+        }
+    });
+
+    // VEDRANA added mouse out event listener
+    registerMouseEvent('mouseout', function(node) {
+        if (selectDragStart !== null) {
+            if (node && node.word && node.word.line) {
+                focusChar = node.ordinal;
+                if (selectDragStart > focusChar) {
+                    doc.select(node.word.line.ordinal, selectDragStart);
+                } else {
+                    doc.select(selectDragStart, focusChar);
                 }
             }
         }
