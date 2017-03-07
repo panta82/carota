@@ -426,9 +426,38 @@ exports.create = function(element) {
         // VEDRANA introduced eventElm instead of binding events to spacer only
         var eventElm = name === "mouseup" || name === "mouseenter" ? element.parentElement : spacer;
         dom.handleMouseEvent(eventElm, name, function (ev, x, y) {
-            handler(doc.byCoordinate(x, y - getVerticalOffset()));
+            handler(doc.byCoordinate(x, y - getVerticalOffset()), ev);
         });
     }
+	
+    // PANTA, source: https://github.com/mikolalysenko/mouse-event/blob/master/mouse.js
+	function normalizeMouseButton(ev) {
+		var b;
+		if (typeof ev === 'object') {
+			if ('buttons' in ev) {
+				return ev.buttons
+			} else if ('which' in ev) {
+				b = ev.which;
+				if (b === 2) {
+					return 4
+				} else if (b === 3) {
+					return 2
+				} else if (b > 0) {
+					return 1 << (b - 1)
+				}
+			} else if ('button' in ev) {
+				b = ev.button;
+				if (b === 1) {
+					return 4
+				} else if (b === 2) {
+					return 2
+				} else if (b >= 0) {
+					return 1 << b
+				}
+			}
+		}
+		return 0
+	}
 
     registerMouseEvent('mousedown', function(node) {
         selectDragStart = node.ordinal;
@@ -445,9 +474,18 @@ exports.create = function(element) {
         }
     });
 
-    registerMouseEvent('mousemove', function(node) {
+    registerMouseEvent('mousemove', function(node, event) {
         if (selectDragStart !== null) {
-            if (node) {
+			// PANTA: cancel selection if button no longer pressed
+        	var button = normalizeMouseButton(event);
+        	if (button === 0) {
+        		// Mouse is no longer pressed
+				selectDragStart = null;
+				selectDragEnd = true;
+				keyboardX = null;
+				updateTextArea();
+			}
+        	else if (node) {
                 focusChar = node.ordinal;
                 if (selectDragStart > node.ordinal) {
                     doc.select(node.ordinal, selectDragStart);
@@ -468,17 +506,6 @@ exports.create = function(element) {
                 } else {
                     doc.select(selectDragStart, focusChar);
                 }
-            }
-        }
-    });
-
-    // VEDRANA added mouse enter event listener
-    registerMouseEvent('mouseenter', function (node) {
-        if (selectDragStart !== null) {
-            if (!selectDragEnd) {
-                selectDragStart = null;
-                selectDragEnd = true;
-                keyboardX = null;
             }
         }
     });
